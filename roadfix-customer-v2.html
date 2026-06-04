@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>RoadFix — Customer</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080C18;--bg2:#0F1626;--bg3:#162035;--card:#111E33;
+  --bdr:rgba(255,255,255,0.06);--bdr2:rgba(255,255,255,0.11);
+  --tx:#EEF2FF;--tx2:#7B90B8;--tx3:#3D5070;
+  --or:#F97316;--or2:rgba(249,115,22,0.13);
+  --bl:#3B82F6;--bl2:rgba(59,130,246,0.13);
+  --gn:#22C55E;--gn2:rgba(34,197,94,0.11);
+  --rd:#EF4444;--rd2:rgba(239,68,68,0.12);
+  --yw:#EAB308;--yw2:rgba(234,179,8,0.11);
+  --pu:#A855F7;--pu2:rgba(168,85,247,0.11);
+  --cy:#06B6D4;--cy2:rgba(6,182,212,0.11);
+  --r:13px;--r2:20px;
+  --fh:'Syne',sans-serif;--fb:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:var(--fb);color:var(--tx);max-width:430px;margin:0 auto;position:relative}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);opacity:0;pointer-events:none;transition:opacity .22s}
+.screen.active{opacity:1;pointer-events:all}
+.sb{flex:1;overflow-y:auto;padding-bottom:80px}.sb::-webkit-scrollbar{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes dot{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* NAV */
+.topbar{flex-shrink:0;padding:46px 18px 13px;display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-bottom:1px solid var(--bdr);z-index:5}
+.logo{font-family:var(--fh);font-size:21px;font-weight:800;display:flex;align-items:center;gap:6px}
+.logo em{color:var(--or);font-style:normal}
+.avi{width:34px;height:34px;border-radius:50%;background:var(--or2);border:1.5px solid var(--or);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:12px;font-weight:700;color:var(--or);cursor:pointer}
+.back{display:flex;align-items:center;gap:5px;font-size:14px;color:var(--tx2);cursor:pointer}
+.pg-title{font-family:var(--fh);font-size:18px;font-weight:700;flex:1;text-align:center}
+.sp{width:52px}
+.bnav{flex-shrink:0;display:flex;background:var(--bg2);border-top:1px solid var(--bdr2);padding:7px 0 18px}
+.bn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.bn-i{font-size:21px;transition:transform .15s}
+.bn-l{font-size:10px;color:var(--tx3);font-weight:500}
+.bn.on .bn-l{color:var(--or)}.bn.on .bn-i{transform:translateY(-2px)}
+
+/* ATOMS */
+.bdg{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px}
+.b-g{background:var(--gn2);color:var(--gn)}.b-o{background:var(--or2);color:var(--or)}
+.b-r{background:var(--rd2);color:var(--rd)}.b-b{background:var(--bl2);color:var(--bl)}
+.b-y{background:var(--yw2);color:var(--yw)}.b-p{background:var(--pu2);color:var(--pu)}
+.b-c{background:var(--cy2);color:var(--cy)}
+.btn{width:100%;border:none;border-radius:var(--r);padding:13px;font-family:var(--fh);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:transform .15s}
+.btn:active{transform:scale(.97)}
+.b-or{background:var(--or);color:#fff}.b-bl{background:var(--bl);color:#fff}
+.b-gn{background:var(--gn);color:#080C18}.b-ghost{background:var(--bg3);color:var(--tx);border:1px solid var(--bdr2)}
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);padding:15px;margin-bottom:11px}
+.sec{padding:18px}.sec-l{font-family:var(--fh);font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.div{height:1px;background:var(--bdr);margin:0 18px}
+input,textarea,select{background:var(--bg3);border:1px solid var(--bdr2);border-radius:var(--r);color:var(--tx);font-family:var(--fb);font-size:14px;padding:11px 13px;width:100%;outline:none;transition:border .2s}
+input:focus,textarea:focus{border-color:var(--or)}
+input::placeholder,textarea::placeholder{color:var(--tx3)}
+textarea{resize:none}
+
+/* SPLASH */
+#s0{justify-content:center;align-items:center;padding:36px 26px;text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(249,115,22,.08) 0%,transparent 70%),var(--bg)}
+.sp-ico{font-size:70px;margin-bottom:20px;animation:pulse 2.2s infinite}
+.sp-h{font-family:var(--fh);font-size:38px;font-weight:800;line-height:1.1;margin-bottom:8px}
+.sp-h em{color:var(--or);font-style:normal}
+.sp-s{font-size:14px;color:var(--tx2);margin-bottom:36px;line-height:1.6}
+.sp-btns{width:100%;display:flex;flex-direction:column;gap:10px}
+.sp-note{font-size:11px;color:var(--tx3);margin-top:12px}
+
+/* HOME */
+.greet{padding:18px 18px 4px}
+.greet-n{font-family:var(--fh);font-size:23px;font-weight:700}
+.greet-n em{color:var(--or);font-style:normal}
+.greet-l{font-size:12px;color:var(--tx2);margin-top:4px;display:flex;align-items:center;gap:4px}
+.sos{background:var(--rd2);border:2px solid var(--rd);border-radius:18px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:13px}
+.sos:active{transform:scale(.98)}.sos-ico{font-size:44px;display:block;margin-bottom:5px}
+.sos-t{font-family:var(--fh);font-size:17px;font-weight:800;color:var(--rd)}
+.sos-s{font-size:12px;color:var(--tx2);margin-top:3px}
+.qg{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px}
+.qc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);padding:14px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:all .2s}
+.qc:active{transform:scale(.97);border-color:var(--or)}
+.qc-i{font-size:24px}.qc-l{font-size:12px;font-weight:500;color:var(--tx2);text-align:center}
+.aj{background:linear-gradient(135deg,rgba(59,130,246,.14),rgba(59,130,246,.04));border:1px solid rgba(59,130,246,.28);border-radius:var(--r2);padding:13px;display:flex;align-items:center;gap:11px;cursor:pointer}
+.srow{display:flex;align-items:center;gap:11px;padding:0;cursor:pointer}
+.srow-i{font-size:26px;flex-shrink:0}.srow-inf{flex:1}.srow-n{font-size:14px;font-weight:600}.srow-s{font-size:12px;color:var(--tx2);margin-top:2px}
+
+/* REPORT */
+.il{font-size:12px;font-weight:500;color:var(--tx2);margin-bottom:6px;display:block}
+.iacts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:13px}
+.ia{background:var(--bg3);border:1px solid var(--bdr2);border-radius:var(--r);padding:11px 7px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:all .2s}
+.ia:active{border-color:var(--or);background:var(--or2)}.ia-i{font-size:20px}.ia-l{font-size:10px;font-weight:500;color:var(--tx2)}
+.vg{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px}
+.vc{background:var(--bg3);border:1.5px solid var(--bdr2);border-radius:var(--r);padding:11px;cursor:pointer;transition:all .2s}
+.vc.sel{border-color:var(--or);background:var(--or2)}
+.vc-m{font-size:13px;font-weight:600}.vc-y{font-size:11px;color:var(--tx3);margin-top:2px}
+.cats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.cat{background:var(--bg3);border:1px solid var(--bdr2);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:7px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:500}
+.cat.sel{border-color:var(--or);background:var(--or2)}
+
+/* AI */
+.ai-load{display:flex;flex-direction:column;align-items:center;padding:48px 20px;gap:13px}
+.ai-sp{width:50px;height:50px;border:3px solid var(--bdr2);border-top-color:var(--pu);border-radius:50%;animation:spin .85s linear infinite}
+.ai-lt{font-family:var(--fh);font-size:16px;font-weight:700;text-align:center}
+.ai-ls{font-size:12px;color:var(--tx2);text-align:center}
+.fault{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:12px;margin-bottom:9px}
+.fh2{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.fn{font-size:14px;font-weight:600}.fp{font-size:14px;font-weight:700}
+.ft{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.fb{height:100%;border-radius:3px;width:0;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.fd{font-size:12px;color:var(--tx2);margin-top:5px;line-height:1.5}
+.abox{border-radius:var(--r);padding:12px;display:flex;gap:10px;margin-bottom:9px}
+.a-danger{background:var(--rd2);border:1px solid rgba(239,68,68,.2)}.a-info{background:var(--bl2);border:1px solid rgba(59,130,246,.18)}
+.a-warn{background:var(--yw2);border:1px solid rgba(234,179,8,.18)}.a-green{background:var(--gn2);border:1px solid rgba(34,197,94,.18)}
+.ai{font-size:19px;flex-shrink:0}.at{font-size:13px;font-weight:700;margin-bottom:2px}.ab{font-size:12px;color:var(--tx2);line-height:1.5}
+
+/* PRICE ESTIMATE — dynamic */
+.price-est{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);padding:16px;margin-bottom:13px}
+.price-notice{background:var(--yw2);border:1px solid rgba(234,179,8,.25);border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--yw);margin-bottom:12px;line-height:1.5}
+.price-base{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--tx2);margin-bottom:4px}
+.price-range{font-family:var(--fh);font-size:36px;font-weight:800;color:var(--or)}
+.price-sub{font-size:12px;color:var(--tx3);margin-top:3px;margin-bottom:14px}
+.price-factors{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.pf{background:var(--bg3);border-radius:11px;padding:10px}
+.pf-l{font-size:10px;color:var(--tx3);margin-bottom:2px}
+.pf-v{font-size:13px;font-weight:700}
+.trip-notice{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.2);border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--pu);line-height:1.5}
+
+/* PARTS SELECTION */
+.part-tabs{display:flex;gap:0;margin-bottom:14px;background:var(--bg3);border-radius:var(--r);padding:3px}
+.pt{flex:1;text-align:center;padding:8px 6px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;color:var(--tx3);transition:all .2s}
+.pt.on{background:var(--card);color:var(--tx);border:1px solid var(--bdr2)}
+.part-card{background:var(--card);border:1.5px solid var(--bdr);border-radius:var(--r);padding:12px;margin-bottom:9px;cursor:pointer;transition:all .2s}
+.part-card.sel{border-color:var(--or);background:var(--or2)}
+.part-card:active{transform:scale(.98)}
+.part-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.part-name{font-size:13px;font-weight:600}.part-price{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--or)}
+.part-desc{font-size:11px;color:var(--tx2);line-height:1.4}
+.part-tag{font-size:10px;padding:2px 7px;border-radius:999px;font-weight:600;margin-top:5px;display:inline-block}
+
+/* MAP & MECHANICS */
+.mapbox{background:var(--bg3);border-radius:var(--r2);height:185px;overflow:hidden;border:1px solid var(--bdr2);margin-bottom:13px}
+.mlist{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);overflow:hidden}
+.mrow{display:flex;align-items:center;gap:11px;padding:12px 14px;border-bottom:1px solid var(--bdr);cursor:pointer;transition:background .15s}
+.mrow:last-child{border-bottom:none}.mrow:active{background:var(--bg3)}
+.mav{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:12px;font-weight:700;flex-shrink:0}
+.mi{flex:1}.mn{font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px}.md{font-size:11px;color:var(--tx2);margin-top:2px}
+.mr{text-align:right}.mp{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--or)}.meta{font-size:11px;color:var(--tx3);margin-top:1px}
+.bk{background:var(--or);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--fh);margin-top:3px;transition:transform .15s}
+.bk:active{transform:scale(.94)}
+.verified-row{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gn);margin-top:2px}
+
+/* TRACKING */
+.steps{display:flex;align-items:flex-start;margin-bottom:15px;padding:0 2px}
+.sn{display:flex;flex-direction:column;align-items:center;gap:3px}
+.sd{width:11px;height:11px;border-radius:50%;background:var(--tx3)}
+.sd.done{background:var(--gn)}.sd.now{background:var(--or);animation:dot 1.4s infinite}
+.sl{font-size:10px;color:var(--tx3);margin-top:2px;white-space:nowrap}
+.sli{flex:1;height:2px;background:var(--bdr2);margin-top:5px;align-self:flex-start}
+.sli.done{background:var(--gn)}
+.tmap{background:var(--bg3);border-radius:var(--r2);height:220px;overflow:hidden;border:1px solid var(--bdr2);margin-bottom:13px}
+.tc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);padding:15px;margin-bottom:11px}
+.tm{display:flex;align-items:center;gap:11px;margin-bottom:13px}
+.eta-n{font-family:var(--fh);font-size:36px;font-weight:800;color:var(--gn)}
+.eta-l{font-size:11px;color:var(--tx3)}
+.tacts{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.ta{background:var(--bg3);border:1px solid var(--bdr2);border-radius:var(--r);padding:11px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:all .2s}
+.ta:active{border-color:var(--gn)}.ta-i{font-size:22px}.ta-l{font-size:11px;font-weight:500;color:var(--tx2)}
+.bodycam-bar{background:var(--rd2);border:1px solid rgba(239,68,68,.2);border-radius:var(--r);padding:10px 13px;display:flex;align-items:center;gap:9px;margin-bottom:11px;font-size:12px;color:var(--rd)}
+.cam-dot{width:8px;height:8px;border-radius:50%;background:var(--rd);animation:dot 1s infinite;flex-shrink:0}
+
+/* PAYMENT */
+.pbox{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);padding:14px;margin-bottom:11px}
+.rr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bdr);font-size:13px}
+.rr:last-child{border-bottom:none}.rrl{color:var(--tx2)}.rrv{font-weight:600}
+.pms{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:14px}
+.pm{background:var(--card);border:1.5px solid var(--bdr);border-radius:var(--r);padding:13px;text-align:center;cursor:pointer;transition:all .2s}
+.pm.sel{border-color:var(--or);background:var(--or2)}
+.pm-i{font-size:24px;display:block;margin-bottom:3px}.pm-l{font-size:11px;font-weight:500;color:var(--tx2)}
+.stars{display:flex;justify-content:center;gap:8px;margin:10px 0 16px}
+.star{font-size:32px;cursor:pointer;transition:transform .2s;opacity:.25}
+.star.on{opacity:1;transform:scale(1.08)}
+.price-final-note{background:var(--gn2);border:1px solid rgba(34,197,94,.2);border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--gn);margin-bottom:13px;line-height:1.5}
+
+/* HISTORY */
+.hi{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);padding:12px 14px;margin-bottom:9px;display:flex;gap:11px}
+.hico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.hinf{flex:1}.ht{font-size:13px;font-weight:600}.hs{font-size:11px;color:var(--tx2);margin-top:2px}
+.hst{font-size:11px;color:var(--yw);margin-top:3px}.hr{text-align:right}
+.ham{font-family:var(--fh);font-size:14px;font-weight:700}.hdate{font-size:11px;color:var(--tx3);margin-top:2px}
+
+/* PROFILE */
+.ph{padding:24px 18px;display:flex;flex-direction:column;align-items:center;gap:9px;border-bottom:1px solid var(--bdr)}
+.pav{width:66px;height:66px;border-radius:50%;background:var(--or2);border:2.5px solid var(--or);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:22px;font-weight:800;color:var(--or)}
+.pn{font-family:var(--fh);font-size:19px;font-weight:700}.ps{font-size:13px;color:var(--tx2)}
+.psts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--bdr)}
+.pst{background:var(--bg2);padding:13px;text-align:center}
+.pstn{font-family:var(--fh);font-size:19px;font-weight:800}.pstl{font-size:11px;color:var(--tx3);margin-top:2px}
+.mit{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--bdr);cursor:pointer;transition:background .15s}
+.mit:active{background:var(--bg3)}.mii{font-size:19px;width:22px;text-align:center}.mil{flex:1;font-size:14px}.mia{color:var(--tx3)}
+
+/* SOS OVERLAY */
+.sos-overlay{position:fixed;inset:0;background:rgba(8,12,24,.92);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;display:none}
+.sos-overlay.show{display:flex}
+.sos-big{font-size:80px;margin-bottom:16px;animation:pulse 1s infinite}
+.sos-h{font-family:var(--fh);font-size:28px;font-weight:800;color:var(--rd);margin-bottom:8px}
+.sos-s2{font-size:14px;color:var(--tx2);margin-bottom:24px;line-height:1.6}
+.sos-cancel{background:var(--bg3);border:1px solid var(--bdr2);border-radius:var(--r);padding:12px;color:var(--tx2);font-family:var(--fh);font-size:14px;font-weight:600;cursor:pointer;width:100%;margin-top:10px}
+</style>
+</head>
+<body>
+
+<!-- SOS OVERLAY -->
+<div class="sos-overlay" id="sos-ov">
+  <div class="sos-big">🆘</div>
+  <div class="sos-h">SOS Activated!</div>
+  <div class="sos-s2">Your location has been shared with:<br>
+    ✅ Nearest verified mechanic (1.2 km)<br>
+    ✅ RoadFix emergency response team<br>
+    ✅ Your emergency contact<br><br>
+    <strong style="color:var(--rd)">Help is on the way!</strong></div>
+  <button class="btn b-or" onclick="closeSOS()">📍 Share live location</button>
+  <button class="btn b-ghost" onclick="closeSOS()" style="margin-top:9px">✕ Cancel SOS</button>
+</div>
+
+<!-- SPLASH -->
+<div id="s0" class="screen active">
+  <div class="sp-ico">🚗</div>
+  <div class="sp-h">Road<em>Fix</em></div>
+  <div class="sp-s">AI-powered roadside assistance.<br>Verified mechanics. Transparent pricing.</div>
+  <div class="sp-btns">
+    <button class="btn b-or" onclick="N('s-home')">🔧 I need help now</button>
+    <button class="btn b-ghost" onclick="N('s-home')">Browse services</button>
+  </div>
+  <div class="sp-note">Trusted by 12,000+ drivers across Assam & NE India</div>
+</div>
+
+<!-- HOME -->
+<div id="s-home" class="screen">
+  <div class="topbar"><div class="logo">Road<em>Fix</em></div><div class="avi" onclick="N('s-profile')">RK</div></div>
+  <div class="sb">
+    <div class="greet">
+      <div class="greet-n">Hi, <em>Rajesh</em> 👋</div>
+      <div class="greet-l">📍 Paltan Bazar, Guwahati</div>
+    </div>
+    <div class="sec">
+      <div class="sos" onclick="triggerSOS()">
+        <span class="sos-ico">🆘</span>
+        <div class="sos-t">TAP FOR EMERGENCY SOS</div>
+        <div class="sos-s">Shares location · alerts nearest verified mechanic + team</div>
+      </div>
+      <div class="sec-l">Quick actions</div>
+      <div class="qg">
+        <div class="qc" onclick="N('s-report')"><div class="qc-i">💬</div><div class="qc-l">Describe issue</div></div>
+        <div class="qc" onclick="N('s-report')"><div class="qc-i">📷</div><div class="qc-l">Upload photo</div></div>
+        <div class="qc" onclick="N('s-report')"><div class="qc-i">🔌</div><div class="qc-l">OBD scan</div></div>
+        <div class="qc" onclick="N('s-history')"><div class="qc-i">📋</div><div class="qc-l">My history</div></div>
+      </div>
+    </div>
+    <div class="div"></div>
+    <div class="sec">
+      <div class="sec-l">Active job</div>
+      <div class="aj" onclick="N('s-tracking')">
+        <div style="font-size:28px">🔧</div>
+        <div style="flex:1"><div style="font-size:14px;font-weight:700;font-family:var(--fh)">Arjun Kalita · en route</div><div style="font-size:12px;color:var(--tx2);margin-top:2px">CV joint repair · ETA 3 min</div></div>
+        <span class="bdg b-g">● Live</span>
+      </div>
+    </div>
+    <div class="div"></div>
+    <div class="sec">
+      <div class="sec-l">Popular services</div>
+      <div class="card srow" style="padding:13px" onclick="N('s-report')"><div class="srow-i">🔋</div><div class="srow-inf"><div class="srow-n">Battery jump start</div><div class="srow-s">Est. ₹350–600 · 5 mechanics nearby</div></div><span class="bdg b-o">Book</span></div>
+      <div class="card srow" style="padding:13px" onclick="N('s-report')"><div class="srow-i">🛞</div><div class="srow-inf"><div class="srow-n">Tyre puncture fix</div><div class="srow-s">Est. ₹280–500 · 8 mechanics nearby</div></div><span class="bdg b-o">Book</span></div>
+      <div class="card srow" style="padding:13px" onclick="N('s-report')"><div class="srow-i">🌡️</div><div class="srow-inf"><div class="srow-n">Overheating / coolant</div><div class="srow-s">Est. ₹500–900 · 3 mechanics nearby</div></div><span class="bdg b-o">Book</span></div>
+    </div>
+  </div>
+  <div class="bnav">
+    <div class="bn on" onclick="N('s-home')"><div class="bn-i">🏠</div><div class="bn-l">Home</div></div>
+    <div class="bn" onclick="N('s-report')"><div class="bn-i">🔍</div><div class="bn-l">Find help</div></div>
+    <div class="bn" onclick="N('s-history')"><div class="bn-i">📋</div><div class="bn-l">History</div></div>
+    <div class="bn" onclick="N('s-pay-hist')"><div class="bn-i">💳</div><div class="bn-l">Payments</div></div>
+    <div class="bn" onclick="N('s-profile')"><div class="bn-i">👤</div><div class="bn-l">Profile</div></div>
+  </div>
+</div>
+
+<!-- REPORT -->
+<div id="s-report" class="screen">
+  <div class="topbar"><div class="back" onclick="B()">← Back</div><div class="pg-title">Report issue</div><div class="sp"></div></div>
+  <div class="sb">
+    <div class="sec">
+      <div class="sec-l">Describe your problem</div>
+      <textarea id="ptxt" rows="4" placeholder="e.g. My car makes a clunking sound on left turns, vibrates at high speed..." style="margin-bottom:11px"></textarea>
+      <div class="iacts">
+        <div class="ia" onclick="fillV()"><div class="ia-i">🎙️</div><div class="ia-l">Voice</div></div>
+        <div class="ia"><div class="ia-i">📷</div><div class="ia-l">Camera</div></div>
+        <div class="ia"><div class="ia-i">🔌</div><div class="ia-l">OBD scan</div></div>
+      </div>
+    </div>
+    <div class="div"></div>
+    <div class="sec">
+      <div class="sec-l">Select vehicle</div>
+      <div class="vg">
+        <div class="vc sel" id="vc0" onclick="selV(0)"><div style="font-size:20px;margin-bottom:4px">🚗</div><div class="vc-m">Maruti Swift</div><div class="vc-y">2019 · Petrol</div></div>
+        <div class="vc" id="vc1" onclick="selV(1)"><div style="font-size:20px;margin-bottom:4px">🚙</div><div class="vc-m">Honda City</div><div class="vc-y">2021 · Diesel</div></div>
+      </div>
+    </div>
+    <div class="div"></div>
+    <div class="sec">
+      <div class="sec-l">Category</div>
+      <div class="cats" id="cats">
+        <div class="cat" onclick="selC(this)">⚙️ Engine</div>
+        <div class="cat" onclick="selC(this)">🛞 Tyres</div>
+        <div class="cat sel" onclick="selC(this)">🔩 Suspension</div>
+        <div class="cat" onclick="selC(this)">🔋 Battery</div>
+        <div class="cat" onclick="selC(this)">🌡️ Cooling</div>
+        <div class="cat" onclick="selC(this)">🚨 Brakes</div>
+      </div>
+      <button class="btn b-or" onclick="N('s-ai')">🤖 Analyse with AI →</button>
+    </div>
+  </div>
+  <div class="bnav">
+    <div class="bn" onclick="N('s-home')"><div class="bn-i">🏠</div><div class="bn-l">Home</div></div>
+    <div class="bn on"><div class="bn-i">🔍</div><div class="bn-l">Find help</div></div>
+    <div class="bn" onclick="N('s-history')"><div class="bn-i">📋</div><div class="bn-l">History</div></div>
+    <div class="bn" onclick="N('s-pay-hist')"><div class="bn-i">💳</div><div class="bn-l">Payments</div></div>
+    <div class="bn" onclick="N('s-profile')"><div class="bn-i">👤</div><div class="bn-l">Profile</div></div>
+  </div>
+</div>
+
+<!-- AI DIAGNOSIS -->
+<div id="s-ai" class="screen">
+  <div class="topbar"><div class="back" onclick="B()">← Back</div><div class="pg-title">AI Diagnosis</div><div class="sp"></div></div>
+  <div class="sb">
+    <div id="ai-load" class="ai-load"><div class="ai-sp"></div><div class="ai-lt">Analysing your problem...</div><div class="ai-ls">Checking 47 fault patterns</div></div>
+    <div id="ai-res" style="display:none">
+      <div class="sec">
+        <div class="sec-l">Probable faults</div>
+        <div class="fault"><div class="fh2"><div class="fn">🔩 CV Joint wear</div><div class="fp" style="color:var(--bl)">87%</div></div><div class="ft"><div class="fb" id="fb1" style="background:var(--bl)"></div></div><div class="fd">Clicking/clunking on turns is classic CV joint. Vibration at speed confirms degradation.</div></div>
+        <div class="fault"><div class="fh2"><div class="fn">⚙️ Wheel bearing</div><div class="fp" style="color:var(--yw)">61%</div></div><div class="ft"><div class="fb" id="fb2" style="background:var(--yw)"></div></div><div class="fd">Humming above 70 kmph that changes pitch on turns suggests bearing wear.</div></div>
+        <div class="fault"><div class="fh2"><div class="fn">🚨 Brake caliper</div><div class="fp" style="color:var(--rd)">44%</div></div><div class="ft"><div class="fb" id="fb3" style="background:var(--rd)"></div></div><div class="fd">Dragging or pulling to one side while braking suggests a seized piston.</div></div>
+      </div>
+      <div class="sec" style="padding-top:0">
+        <div class="abox a-danger"><div class="ai">⚠️</div><div><div class="at" style="color:var(--rd)">Safety warning</div><div class="ab">Unsafe at highway speeds. Request immediate roadside help.</div></div></div>
+        <div class="abox a-info"><div class="ai">📦</div><div><div class="at" style="color:var(--bl)">Parts mechanic should carry</div><div class="ab">CV axle assembly (Swift 2019 petrol), CV boot grease, circlip set, wheel bearing</div></div></div>
+      </div>
+      <div class="sec" style="padding-top:0">
+        <div class="sec-l">Price estimate</div>
+        <div class="price-est">
+          <div class="price-notice">⚠️ This is an <strong>estimate only</strong>. Final price may change based on: actual parts needed after inspection, number of trips required, and parts sourcing.</div>
+          <div class="price-base">Estimated range</div>
+          <div class="price-range">₹1,200 – ₹1,800</div>
+          <div class="price-sub">Final bill confirmed after job completion</div>
+          <div class="price-factors">
+            <div class="pf"><div class="pf-l">Base labour</div><div class="pf-v">₹800</div></div>
+            <div class="pf"><div class="pf-l">Distance ×</div><div class="pf-v">1.2×</div></div>
+            <div class="pf"><div class="pf-l">Surge ×</div><div class="pf-v">1.3×</div></div>
+            <div class="pf"><div class="pf-l">Severity ×</div><div class="pf-v">1.6×</div></div>
+          </div>
+          <div class="trip-notice">🔄 If mechanic needs to return for parts, each return trip adds ₹80–150 travel surcharge, shown transparently on your final bill.</div>
+        </div>
+        <button class="btn b-or" onclick="N('s-parts')">Select parts type →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PARTS SELECTION -->
+<div id="s-parts" class="screen">
+  <div class="topbar"><div class="back" onclick="B()">← Back</div><div class="pg-title">Choose parts</div><div class="sp"></div></div>
+  <div class="sb">
+    <div class="sec">
+      <div class="abox a-info" style="margin-bottom:13px"><div class="ai">ℹ️</div><div><div class="at" style="color:var(--bl)">Your choice, transparent pricing</div><div class="ab">You select the parts type. Company-sourced parts come at fixed prices from our partner shops or delivered via Rapido Parcel / 24×7 partner outlets.</div></div></div>
+      <div class="sec-l">Parts type</div>
+      <div class="part-tabs">
+        <div class="pt on" id="pt-oem" onclick="selPT('oem')">OEM</div>
+        <div class="pt" id="pt-odm" onclick="selPT('odm')">ODM</div>
+        <div class="pt" id="pt-gen" onclick="selPT('gen')">Generic</div>
+      </div>
+      <div id="parts-list"></div>
+    </div>
+    <div class="sec" style="padding-top:0">
+      <div class="sec-l">Parts delivery</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px" id="delivery-opts">
+        <div class="part-card sel" id="pd0" onclick="selPD(0)"><div class="part-head"><div class="part-name">🏪 Company outlet</div></div><div class="part-desc">Fixed prices, guaranteed quality. 20–40 min delivery.</div><div class="part-tag" style="background:var(--gn2);color:var(--gn)">Recommended</div></div>
+        <div class="part-card" id="pd1" onclick="selPD(1)"><div class="part-head"><div class="part-name">🛵 Rapido Parcel</div></div><div class="part-desc">Partner logistics. Express delivery 15–30 min.</div><div class="part-tag" style="background:var(--bl2);color:var(--bl)">Fast</div></div>
+        <div class="part-card" id="pd2" onclick="selPD(2)"><div class="part-head"><div class="part-name">🔧 Mechanic's own</div></div><div class="part-desc">Mechanic brings from own stock. Instant, ±5% price.</div><div class="part-tag" style="background:var(--yw2);color:var(--yw)">Fastest</div></div>
+        <div class="part-card" id="pd3" onclick="selPD(3)"><div class="part-head"><div class="part-name">🕐 24×7 partner shop</div></div><div class="part-desc">Nearest tie-up shop. Fixed company pricing.</div><div class="part-tag" style="background:var(--pu2);color:var(--pu)">24/7</div></div>
+      </div>
+      <button class="btn b-or" onclick="N('s-mechanics')">Find nearby mechanics →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MECHANICS MAP -->
+<div id="s-mechanics" class="screen">
+  <div class="topbar"><div class="back" onclick="B()">← Back</div><div class="pg-title">Nearby mechanics</div><span class="bdg b-g">3 verified</span></div>
+  <div class="sb">
+    <div class="sec">
+      <div class="mapbox">
+        <svg viewBox="0 0 380 185">
+          <rect width="380" height="185" fill="#162035"/>
+          <line x1="0" y1="37" x2="380" y2="37" stroke="#1E2E45" stroke-width="1"/><line x1="0" y1="74" x2="380" y2="74" stroke="#1E2E45" stroke-width="1"/><line x1="0" y1="111" x2="380" y2="111" stroke="#1E2E45" stroke-width="1"/><line x1="0" y1="148" x2="380" y2="148" stroke="#1E2E45" stroke-width="1"/>
+          <line x1="76" y1="0" x2="76" y2="185" stroke="#1E2E45" stroke-width="1"/><line x1="152" y1="0" x2="152" y2="185" stroke="#1E2E45" stroke-width="1"/><line x1="228" y1="0" x2="228" y2="185" stroke="#1E2E45" stroke-width="1"/><line x1="304" y1="0" x2="304" y2="185" stroke="#1E2E45" stroke-width="1"/>
+          <line x1="0" y1="93" x2="380" y2="93" stroke="#1F3050" stroke-width="9"/><line x1="190" y1="0" x2="190" y2="185" stroke="#1F3050" stroke-width="9"/>
+          <circle cx="190" cy="110" r="9" fill="#EF4444"/>
+          <circle cx="190" cy="110" r="22" fill="none" stroke="rgba(239,68,68,.3)" stroke-width="1"><animate attributeName="r" from="11" to="28" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" from=".7" to="0" dur="2s" repeatCount="indefinite"/></circle>
+          <text x="190" y="128" fill="white" font-size="9" text-anchor="middle" font-family="DM Sans">You</text>
+          <line x1="190" y1="110" x2="108" y2="63" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <circle cx="108" cy="63" r="7" fill="#3B82F6"/><text x="108" y="50" fill="white" font-size="9" text-anchor="middle">AK 1.2km</text>
+          <circle cx="289" cy="77" r="7" fill="#22C55E"/><text x="289" y="64" fill="white" font-size="9" text-anchor="middle">RB 2.1km</text>
+          <circle cx="146" cy="148" r="7" fill="#A855F7"/><text x="146" y="163" fill="white" font-size="9" text-anchor="middle">BN 3.4km</text>
+        </svg>
+      </div>
+      <div class="mlist">
+        <div class="mrow" onclick="N('s-tracking')">
+          <div class="mav" style="background:#1D4ED8;color:#fff">AK</div>
+          <div class="mi">
+            <div class="mn">Arjun Kalita <span class="bdg b-y" style="font-size:10px">⭐ 4.9</span></div>
+            <div class="md">CV specialist · 1.2 km</div>
+            <div class="verified-row">✅ Verified · bodycam ready</div>
+          </div>
+          <div class="mr"><div class="mp">₹1,200–1,800</div><div class="meta">ETA 4 min</div><button class="bk">Book</button></div>
+        </div>
+        <div class="mrow" onclick="N('s-tracking')">
+          <div class="mav" style="background:#166534;color:#fff">RB</div>
+          <div class="mi">
+            <div class="mn">Raju Boro <span class="bdg b-y" style="font-size:10px">⭐ 4.7</span></div>
+            <div class="md">General mechanic · 2.1 km</div>
+            <div class="verified-row">✅ Verified · bodycam ready</div>
+          </div>
+          <div class="mr"><div class="mp">₹1,000–1,600</div><div class="meta">ETA 7 min</div><button class="bk">Book</button></div>
+        </div>
+        <div class="mrow" onclick="N('s-tracking')">
+          <div class="mav" style="background:#6D28D9;color:#fff">BN</div>
+          <div class="mi">
+            <div class="mn">Bikash Nath <span class="bdg b-y" style="font-size:10px">⭐ 4.6</span></div>
+            <div class="md">Suspension · 3.4 km</div>
+            <div class="verified-row">✅ Verified · bodycam ready</div>
+          </div>
+          <div class="mr"><div class="mp">₹900–1,400</div><div class="meta">ETA 11 min</div><button class="bk">Book</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRACKING -->
+<div id="s-tracking" class="screen">
+  <div class="topbar"><div class="back" onclick="B()">← Back</div><div class="pg-title">Live tracking</div><span class="bdg b-g">En route</span></div>
+  <div class="sb">
+    <div class="sec">
+      <div class="steps">
+        <div class="sn"><div class="sd done"></div><div class="sl" style="color:var(--gn)">Booked</div></div>
+        <div class="sli done"></div>
+        <div class="sn"><div class="sd done"></div><div class="sl" style="color:var(--gn)">Accepted</div></div>
+        <div class="sli done"></div>
+        <div class="sn"><div class="sd now"></div><div class="sl" style="color:var(--or)">En route</div></div>
+        <div class="sli"></div>
+        <div class="sn"><div class="sd"></div><div class="sl">Fixing</div></div>
+        <div class="sli"></div>
+        <div class="sn"><div class="sd"></div><div class="sl">Done</div></div>
+      </div>
+      <div class="bodycam-bar"><div class="cam-dot"></div><div>🎥 Bodycam active · Live recorded · GPS tracking ON</div></div>
+      <div class="tmap">
+        <svg width="100%" height="100%" viewBox="0 0 380 220">
+          <rect width="380" height="220" fill="#162035"/>
+          <line x1="0" y1="110" x2="380" y2="110" stroke="#1F3050" stroke-width="10"/><line x1="190" y1="0" x2="190" y2="220" stroke="#1F3050" stroke-width="10"/>
+          <line x1="0" y1="66" x2="380" y2="66" stroke="#192840" stroke-width="5"/><line x1="100" y1="0" x2="100" y2="220" stroke="#192840" stroke-width="5"/>
+          <polyline points="100,72 100,110 228,110 228,144" stroke="#22C55E" stroke-width="2.5" fill="none" stroke-dasharray="7,4"/>
+          <circle cx="228" cy="144" r="10" fill="#EF4444"/>
+          <text x="228" y="160" fill="white" font-size="9" text-anchor="middle" font-family="DM Sans">You</text>
+          <circle cx="100" cy="72" r="8" fill="#3B82F6"><animate attributeName="cx" values="100;145;195;228" dur="10s" repeatCount="indefinite"/><animate attributeName="cy" values="72;72;110;110" dur="10s" repeatCount="indefinite" keyTimes="0;0.3;0.5;1"/></circle>
+          <text x="100" y="58" fill="white" font-size="9" text-anchor="middle" font-family="DM Sans">Arjun</text>
+        </svg>
+      </div>
+      <div class="tc">
+        <div class="tm">
+          <div class="mav" style="background:#1D4ED8;color:#fff;width:44px;height:44px;font-size:14px">AK</div>
+          <div style="flex:1"><div style="font-size:14px;font-weight:700;font-family:var(--fh)">Arjun Kalita</div><div style="font-size:12px;color:var(--tx2)">CV specialist · ⭐ 4.9 · ✅ Verified</div></div>
+          <div style="text-align:right"><div class="eta-n" id="etav">3</div><div class="eta-l">min ETA</div></div>
+        </div>
+        <div class="tacts">
+          <div class="ta"><div class="ta-i">📞</div><div class="ta-l">Call Arjun</div></div>
+          <div class="ta"><div class="ta-i">💬</div><div class="ta-l">Chat</div></div>
+          <div class="ta"><div class="ta-i">🎥</div><div class="ta-l">View bodycam</div></div>
+          <div class="ta"><div class="ta-i">📍</div><div class="ta-l">Share location</div></div>
+        </div>
+      </div>
+      <div class="card" style="padding:13px 14px">
+        <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr);font-size:13px"><span style="color:var(--tx2)">Estimated price</span><span style="font-weight:700;color:var(--yw)">₹1,200 – ₹1,800</span></div>
+        <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr);font-size:13px"><span style="color:var(--tx2)">Parts selected</span><span style="font-weight:600">OEM · Company outlet</span></div>
+        <div style="display:flex;justify-content:space-between;padding:7px 0;font-size:12px"><span style="color:var(--tx3)">⚠️ Final price confirmed on completion</span></div>
+      </div>
+      <button class="btn b-bl" onclick="N('s-payment')">Job complete → Pay now</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT -->
+<div id="s-payment" class="screen">
+  <div class="topbar"><div class="back" onclick="B()">← Back</div><div class="pg-title">Job complete</div><div class="sp"></div></div>
+  <div class="sb">
+    <div class="sec">
+      <div style="text-align:center;padding:16px 0"><div style="font-size:58px;margin-bottom:10px">✅</div><div style="font-family:var(--fh);font-size:22px;font-weight:800;color:var(--gn)">Job complete!</div><div style="font-size:13px;color:var(--tx2);margin-top:4px">CV joint repair · 38 min · Arjun Kalita</div></div>
+      <div class="price-final-note">✅ <strong>Final price confirmed</strong>: 1 return trip needed (wrong boot size). Trip surcharge ₹100 added transparently. Parts delivered via company outlet at fixed price.</div>
+      <div class="pbox">
+        <div class="rr"><div class="rrl">CV axle assembly (OEM)</div><div class="rrv">₹650</div></div>
+        <div class="rr"><div class="rrl">Labour</div><div class="rrv">₹600</div></div>
+        <div class="rr"><div class="rrl">Platform fee</div><div class="rrv">₹120</div></div>
+        <div class="rr"><div class="rrl">Surge (1.3×)</div><div class="rrv">₹80</div></div>
+        <div class="rr"><div class="rrl">Return trip surcharge (1×)</div><div class="rrv" style="color:var(--yw)">₹100</div></div>
+        <div class="rr" style="border-top:1.5px solid var(--bdr2);margin-top:4px"><div style="font-weight:700;font-size:14px">Total (final)</div><div style="font-family:var(--fh);font-size:20px;font-weight:800;color:var(--or)">₹1,550</div></div>
+      </div>
+      <div class="sec-l">Pay with</div>
+      <div class="pms">
+        <div class="pm sel" id="pm0" onclick="selPM(0)"><span class="pm-i">💳</span><span class="pm-l">UPI</span></div>
+        <div class="pm" id="pm1" onclick="selPM(1)"><span class="pm-i">💵</span><span class="pm-l">Cash</span></div>
+        <div class="pm" id="pm2" onclick="selPM(2)"><span class="pm-i">🏦</span><span class="pm-l">Card</span></div>
+      </div>
+      <div class="sec-l">Rate Arjun</div>
+      <div class="stars"><span class="star on" onclick="rst(0)">⭐</span><span class="star on" onclick="rst(1)">⭐</span><span class="star on" onclick="rst(2)">⭐</span><span class="star on" onclick="rst(3)">⭐</span><span class="star on" onclick="rst(4)">⭐</span></div>
+      <input type="text" placeholder="Leave a review (optional)..." style="margin-bottom:13px">
+      <button class="btn b-or" onclick="N('s-home')">Pay ₹1,550 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div id="s-history" class="screen">
+  <div class="topbar"><div class="logo">Road<em>Fix</em></div><span class="bdg b-b">History</span></div>
+  <div class="sb">
+    <div class="sec">
+      <div class="sec-l">This month</div>
+      <div class="hi"><div class="hico" style="background:var(--or2)">🔩</div><div class="hinf"><div class="ht">CV joint repair</div><div class="hs">Arjun Kalita · Paltan Bazar</div><div class="hst">⭐⭐⭐⭐⭐</div></div><div class="hr"><div class="ham" style="color:var(--rd)">₹1,550</div><div class="hdate">Today</div><span class="bdg b-g" style="font-size:10px">Done</span></div></div>
+      <div class="hi"><div class="hico" style="background:var(--gn2)">🔋</div><div class="hinf"><div class="ht">Battery jump start</div><div class="hs">Raju Boro · Maligaon</div><div class="hst">⭐⭐⭐⭐</div></div><div class="hr"><div class="ham" style="color:var(--rd)">₹650</div><div class="hdate">May 28</div><span class="bdg b-g" style="font-size:10px">Done</span></div></div>
+      <div class="hi"><div class="hico" style="background:var(--bl2)">🛞</div><div class="hinf"><div class="ht">Tyre puncture fix</div><div class="hs">Bikash Nath · Zoo Road</div><div class="hst">⭐⭐⭐⭐⭐</div></div><div class="hr"><div class="ham" style="color:var(--rd)">₹420</div><div class="hdate">May 15</div><span class="bdg b-g" style="font-size:10px">Done</span></div></div>
+    </div>
+  </div>
+  <div class="bnav">
+    <div class="bn" onclick="N('s-home')"><div class="bn-i">🏠</div><div class="bn-l">Home</div></div>
+    <div class="bn" onclick="N('s-report')"><div class="bn-i">🔍</div><div class="bn-l">Find help</div></div>
+    <div class="bn on"><div class="bn-i">📋</div><div class="bn-l">History</div></div>
+    <div class="bn" onclick="N('s-pay-hist')"><div class="bn-i">💳</div><div class="bn-l">Payments</div></div>
+    <div class="bn" onclick="N('s-profile')"><div class="bn-i">👤</div><div class="bn-l">Profile</div></div>
+  </div>
+</div>
+
+<!-- PAY HISTORY -->
+<div id="s-pay-hist" class="screen">
+  <div class="topbar"><div class="logo">Road<em>Fix</em></div><span class="bdg b-b">Payments</span></div>
+  <div class="sb">
+    <div class="sec">
+      <div class="card" style="text-align:center;padding:18px"><div style="font-size:13px;color:var(--tx2);margin-bottom:4px">Total spent · 2026</div><div style="font-family:var(--fh);font-size:32px;font-weight:800;color:var(--or)">₹6,040</div><div style="font-size:12px;color:var(--tx3);margin-top:4px">9 services</div></div>
+      <div class="sec-l">Transactions</div>
+      <div class="hi"><div class="hico" style="background:var(--or2)">💳</div><div class="hinf"><div class="ht">CV joint repair</div><div class="hs">UPI · Final price ₹1,550</div></div><div class="hr"><div class="ham" style="color:var(--rd)">-₹1,550</div><div class="hdate">Today</div></div></div>
+      <div class="hi"><div class="hico" style="background:var(--gn2)">💳</div><div class="hinf"><div class="ht">Battery jump</div><div class="hs">Cash · Final price ₹650</div></div><div class="hr"><div class="ham" style="color:var(--rd)">-₹650</div><div class="hdate">May 28</div></div></div>
+    </div>
+  </div>
+  <div class="bnav">
+    <div class="bn" onclick="N('s-home')"><div class="bn-i">🏠</div><div class="bn-l">Home</div></div>
+    <div class="bn" onclick="N('s-report')"><div class="bn-i">🔍</div><div class="bn-l">Find help</div></div>
+    <div class="bn" onclick="N('s-history')"><div class="bn-i">📋</div><div class="bn-l">History</div></div>
+    <div class="bn on"><div class="bn-i">💳</div><div class="bn-l">Payments</div></div>
+    <div class="bn" onclick="N('s-profile')"><div class="bn-i">👤</div><div class="bn-l">Profile</div></div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div id="s-profile" class="screen">
+  <div class="sb" style="padding-bottom:80px">
+    <div class="ph"><div class="pav">RK</div><div class="pn">Rajesh Kumar</div><div class="ps">+91 98765 43210 · Guwahati</div><span class="bdg b-g">Verified customer</span></div>
+    <div class="psts"><div class="pst"><div class="pstn">9</div><div class="pstl">Services</div></div><div class="pst"><div class="pstn">4.8</div><div class="pstl">Avg rating</div></div><div class="pst"><div class="pstn">₹6k</div><div class="pstl">Total spent</div></div></div>
+    <div class="mit"><div class="mii">🚗</div><div class="mil">My vehicles</div><div class="mia">›</div></div>
+    <div class="mit"><div class="mii">📍</div><div class="mil">Saved locations</div><div class="mia">›</div></div>
+    <div class="mit"><div class="mii">🔔</div><div class="mil">Notifications</div><div class="mia">›</div></div>
+    <div class="mit"><div class="mii">💳</div><div class="mil">Payment methods</div><div class="mia">›</div></div>
+    <div class="mit"><div class="mii">🛡️</div><div class="mil">Insurance</div><div class="mia">›</div></div>
+    <div class="mit"><div class="mii">❓</div><div class="mil">Help & support</div><div class="mia">›</div></div>
+    <div class="mit" onclick="N('s0')"><div class="mii">🚪</div><div class="mil">Sign out</div><div class="mia">›</div></div>
+    <div style="padding:18px;text-align:center;font-size:12px;color:var(--tx3)">RoadFix v3.0 · Customer App</div>
+  </div>
+  <div class="bnav">
+    <div class="bn" onclick="N('s-home')"><div class="bn-i">🏠</div><div class="bn-l">Home</div></div>
+    <div class="bn" onclick="N('s-report')"><div class="bn-i">🔍</div><div class="bn-l">Find help</div></div>
+    <div class="bn" onclick="N('s-history')"><div class="bn-i">📋</div><div class="bn-l">History</div></div>
+    <div class="bn" onclick="N('s-pay-hist')"><div class="bn-i">💳</div><div class="bn-l">Payments</div></div>
+    <div class="bn on"><div class="bn-i">👤</div><div class="bn-l">Profile</div></div>
+  </div>
+</div>
+
+<script>
+var stk=['s0'],cur='s0',aiDone=false,etaT;
+function N(id){var o=document.getElementById(cur),n=document.getElementById(id);if(!n)return;o.classList.remove('active');n.classList.add('active');stk.push(id);cur=id;var sb=n.querySelector('.sb');if(sb)sb.scrollTop=0;if(id==='s-ai')doAI();if(id==='s-tracking')startETA();if(id==='s-parts')buildParts('oem');}
+function B(){if(stk.length<2)return;stk.pop();var p=stk[stk.length-1];document.getElementById(cur).classList.remove('active');document.getElementById(p).classList.add('active');cur=p;}
+function fillV(){var e=document.getElementById('ptxt');if(e)e.value='My car makes a loud clunking sound when turning left, vibrates at highway speed above 80 kmph. Engine check light came on this morning.';}
+function selV(i){['vc0','vc1'].forEach(function(id,j){var e=document.getElementById(id);if(e)e.classList.toggle('sel',j===i);});}
+function selC(el){document.querySelectorAll('.cat').forEach(function(c){c.classList.remove('sel');});el.classList.add('sel');}
+function doAI(){if(aiDone){showAI();return;}var l=document.getElementById('ai-load'),r=document.getElementById('ai-res');if(l)l.style.display='flex';if(r)r.style.display='none';setTimeout(function(){if(l)l.style.display='none';showAI();aiDone=true;},2600);}
+function showAI(){var r=document.getElementById('ai-res');if(r)r.style.display='block';setTimeout(function(){['fb1','fb2','fb3'].forEach(function(id,i){var e=document.getElementById(id);if(e)e.style.width=[87,61,44][i]+'%';});},80);}
+function startETA(){var e=document.getElementById('etav'),v=3;clearInterval(etaT);if(e)e.textContent=v;etaT=setInterval(function(){if(v>0){v--;if(e)e.textContent=v;}else clearInterval(etaT);},18000);}
+
+var selPTcur='oem';
+var partsData={
+  oem:[{name:'CV Axle Assembly (OEM)',brand:'Maruti Genuine',price:'₹1,200',desc:'Original manufacturer part. Full warranty. Best fit.','tag':'Original','tc':'var(--bl)','tb':'var(--bl2)'},
+       {name:'Wheel Bearing (OEM)',brand:'NSK / JTEKT',price:'₹680',desc:'Manufacturer-spec bearing. Longest life.','tag':'Genuine','tc':'var(--bl)','tb':'var(--bl2)'}],
+  odm:[{name:'CV Axle Assembly (ODM)',brand:'Sona BLW / Minda',price:'₹780',desc:'Tier-1 supplier. Same specs, better price.','tag':'Equivalent','tc':'var(--gn)','tb':'var(--gn2)'},
+       {name:'Wheel Bearing (ODM)',brand:'FAG / SKF India',price:'₹420',desc:'OEM-equivalent quality. Widely used.','tag':'Value pick','tc':'var(--gn)','tb':'var(--gn2)'}],
+  gen:[{name:'CV Axle Assembly (Generic)',brand:'Local brand',price:'₹480',desc:'Same capability, lower cost. 6-month warranty.','tag':'Budget','tc':'var(--yw)','tb':'var(--yw2)'},
+       {name:'Wheel Bearing (Generic)',brand:'Unbranded',price:'₹220',desc:'Basic quality. Good for short-term fix.','tag':'Lowest cost','tc':'var(--yw)','tb':'var(--yw2)'}]
+};
+function selPT(t){selPTcur=t;['oem','odm','gen'].forEach(function(x){var e=document.getElementById('pt-'+x);if(e)e.classList.toggle('on',x===t);});buildParts(t);}
+function buildParts(t){var c=document.getElementById('parts-list');if(!c)return;c.innerHTML='';partsData[t].forEach(function(p,i){c.innerHTML+='<div class="part-card'+(i===0?' sel':'')+'" onclick="selPart(this)"><div class="part-head"><div class="part-name">'+p.name+'</div><div class="part-price">'+p.price+'</div></div><div style="font-size:11px;color:var(--tx3);margin-bottom:4px">'+p.brand+'</div><div class="part-desc">'+p.desc+'</div><div class="part-tag" style="background:'+p.tb+';color:'+p.tc+'">'+p.tag+'</div></div>';});}
+function selPart(el){document.querySelectorAll('#parts-list .part-card').forEach(function(c){c.classList.remove('sel');});el.classList.add('sel');}
+function selPD(i){[0,1,2,3].forEach(function(j){var e=document.getElementById('pd'+j);if(e)e.classList.toggle('sel',j===i);});}
+function selPM(i){[0,1,2].forEach(function(j){var e=document.getElementById('pm'+j);if(e)e.classList.toggle('sel',j===i);});}
+function rst(i){document.querySelectorAll('.star').forEach(function(s,j){s.classList.toggle('on',j<=i);});}
+function triggerSOS(){document.getElementById('sos-ov').classList.add('show');}
+function closeSOS(){document.getElementById('sos-ov').classList.remove('show');}
+</script>
+</body>
+</html>

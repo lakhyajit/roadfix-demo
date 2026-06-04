@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RoadFix Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060912;--bg2:#0C1022;--bg3:#101830;--card:#0E1628;
+  --bdr:rgba(255,255,255,0.06);--bdr2:rgba(255,255,255,0.1);
+  --tx:#E8EEFF;--tx2:#6B80AA;--tx3:#334060;
+  --or:#F97316;--or2:rgba(249,115,22,0.12);
+  --bl:#3B82F6;--bl2:rgba(59,130,246,0.12);
+  --gn:#22C55E;--gn2:rgba(34,197,94,0.10);
+  --rd:#EF4444;--rd2:rgba(239,68,68,0.12);
+  --yw:#EAB308;--yw2:rgba(234,179,8,0.10);
+  --pu:#A855F7;--pu2:rgba(168,85,247,0.10);
+  --cy:#06B6D4;--cy2:rgba(6,182,212,0.10);
+  --fh:'Syne',sans-serif;--fb:'DM Sans',sans-serif;
+  --r:10px;--r2:16px;--sidebar:220px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:var(--fb);color:var(--tx);display:flex}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);flex-shrink:0;background:var(--bg2);border-right:1px solid var(--bdr);display:flex;flex-direction:column;height:100vh;overflow-y:auto}
+.sidebar::-webkit-scrollbar{display:none}
+.sb-logo{padding:24px 18px 20px;border-bottom:1px solid var(--bdr)}
+.sb-logo-t{font-family:var(--fh);font-size:20px;font-weight:800;display:flex;align-items:center;gap:7px}
+.sb-logo-t em{color:var(--or);font-style:normal}
+.sb-logo-s{font-size:11px;color:var(--tx3);margin-top:3px}
+.sb-section{padding:14px 12px 6px;font-family:var(--fh);font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase}
+.sb-item{display:flex;align-items:center;gap:9px;padding:9px 14px;margin:1px 6px;border-radius:var(--r);cursor:pointer;transition:background .15s;font-size:13px;color:var(--tx2)}
+.sb-item:hover{background:var(--bg3)}.sb-item.active{background:var(--or2);color:var(--or)}
+.sb-item-ico{font-size:17px;width:20px;text-align:center;flex-shrink:0}
+.sb-alert{background:var(--rd2);border:1px solid rgba(239,68,68,.2);border-radius:var(--r);padding:9px 12px;margin:8px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;animation:blink 1.5s infinite}
+.sb-alert-t{font-family:var(--fh);font-size:12px;font-weight:700;color:var(--rd)}
+.sb-alert-s{font-size:11px;color:var(--tx2);margin-top:1px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.6}}
+.sb-bottom{margin-top:auto;padding:12px 10px;border-top:1px solid var(--bdr)}
+.sb-user{display:flex;align-items:center;gap:9px;padding:9px 6px}
+.sb-av{width:32px;height:32px;border-radius:50%;background:var(--or2);border:1.5px solid var(--or);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:11px;font-weight:700;color:var(--or)}
+.sb-un{font-size:12px;font-weight:600}.sb-ur{font-size:11px;color:var(--tx3)}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{flex-shrink:0;padding:16px 24px;background:var(--bg2);border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.tb-title{font-family:var(--fh);font-size:18px;font-weight:700}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tb-time{font-size:12px;color:var(--tx2)}
+.tb-sos{background:var(--rd);color:#fff;border:none;border-radius:var(--r);padding:7px 13px;font-family:var(--fh);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;animation:blink 2s infinite}
+.content{flex:1;overflow-y:auto;padding:20px 24px}
+.content::-webkit-scrollbar{width:4px}.content::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+/* VIEWS */
+.view{display:none}.view.active{display:block}
+
+/* ATOMS */
+.bdg{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px}
+.b-g{background:var(--gn2);color:var(--gn)}.b-o{background:var(--or2);color:var(--or)}
+.b-r{background:var(--rd2);color:var(--rd)}.b-b{background:var(--bl2);color:var(--bl)}
+.b-y{background:var(--yw2);color:var(--yw)}.b-p{background:var(--pu2);color:var(--pu)}
+.b-c{background:var(--cy2);color:var(--cy)}
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);padding:16px;margin-bottom:14px}
+.sec-l{font-family:var(--fh);font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:11px}
+
+/* GRID */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.g21{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:18px}
+
+/* STAT CARDS */
+.kpi{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);padding:16px}
+.kpi-ico{font-size:26px;margin-bottom:10px}
+.kpi-val{font-family:var(--fh);font-size:26px;font-weight:800;margin-bottom:3px}
+.kpi-lbl{font-size:12px;color:var(--tx2)}
+.kpi-delta{font-size:12px;margin-top:5px;font-weight:500}
+
+/* LIVE JOBS TABLE */
+.table{width:100%;border-collapse:collapse}
+.table th{font-family:var(--fh);font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:.07em;text-transform:uppercase;padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr)}
+.table td{padding:10px 12px;border-bottom:1px solid var(--bdr);font-size:13px;vertical-align:middle}
+.table tr:last-child td{border-bottom:none}
+.table tr:hover td{background:rgba(255,255,255,.02)}
+.mav-sm{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:11px;font-weight:700}
+.price-cell{font-family:var(--fh);font-weight:700}
+.cam-live{display:flex;align-items:center;gap:5px;font-size:12px}
+.cam-dot{width:6px;height:6px;border-radius:50%;background:var(--rd);animation:blink 1s infinite;flex-shrink:0}
+
+/* MAP PANEL */
+.admin-map{background:var(--bg3);border-radius:var(--r2);height:280px;overflow:hidden;border:1px solid var(--bdr);position:relative}
+.admin-map svg{width:100%;height:100%}
+.map-legend{position:absolute;bottom:10px;right:10px;background:rgba(6,9,18,.8);border-radius:8px;padding:8px 12px;display:flex;flex-direction:column;gap:5px}
+.ml-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx2)}
+.ml-dot{width:8px;height:8px;border-radius:50%}
+
+/* ALERTS */
+.alert-item{display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);margin-bottom:9px;transition:background .15s}
+.alert-item:hover{background:var(--bg3)}
+.al-ico{font-size:22px;flex-shrink:0}
+.al-info{flex:1}.al-t{font-size:13px;font-weight:600}.al-s{font-size:12px;color:var(--tx2);margin-top:2px;line-height:1.4}
+.al-time{font-size:11px;color:var(--tx3);white-space:nowrap;flex-shrink:0}
+.sos-alert{background:var(--rd2);border-color:rgba(239,68,68,.3)}
+.sos-alert .al-t{color:var(--rd)}
+
+/* MECHANICS TABLE */
+.verified-ico{color:var(--gn);font-size:14px}
+.gps-on{color:var(--gn);font-size:12px;font-weight:500}
+.cam-on{color:var(--rd);font-size:12px;font-weight:500}
+
+/* PARTS & PRICING */
+.price-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--bdr);font-size:13px}
+.price-row:last-child{border-bottom:none}.price-l{color:var(--tx2)}.price-v{font-weight:600}
+.parts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.pc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:13px}
+.pc-t{font-family:var(--fh);font-size:13px;font-weight:700;margin-bottom:5px}
+.pc-p{font-family:var(--fh);font-size:20px;font-weight:800;color:var(--or);margin-bottom:3px}
+.pc-s{font-size:12px;color:var(--tx2);margin-bottom:6px}
+
+/* CHARTS */
+.mini-chart{display:flex;align-items:flex-end;gap:4px;height:50px}
+.mc-bar{flex:1;border-radius:3px 3px 0 0;background:var(--bl2);border:1px solid var(--bl2);transition:height .5s}
+.mc-bar.hi{background:var(--bl);border-color:var(--bl)}
+
+/* FINANCE */
+.fin-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bdr);font-size:13px}
+.fin-row:last-child{border-bottom:none}
+
+/* BODYCAM */
+.cam-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.cam-feed{background:var(--bg3);border-radius:var(--r);height:120px;position:relative;overflow:hidden;border:1px solid var(--bdr2)}
+.cam-overlay{position:absolute;top:6px;left:6px;display:flex;align-items:center;gap:5px}
+.cam-rec{background:var(--rd);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;font-family:var(--fh)}
+.cam-name{position:absolute;bottom:6px;left:6px;font-size:10px;font-weight:600;color:#fff;background:rgba(0,0,0,.6);padding:2px 7px;border-radius:4px}
+.cam-offline{display:flex;align-items:center;justify-content:center;height:100%;font-size:12px;color:var(--tx3)}
+.cam-animate{background:linear-gradient(45deg,#0E1628 25%,#142036 50%,#0E1628 75%);background-size:200% 200%;animation:camAnim 3s linear infinite}
+@keyframes camAnim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-t">Road<em>Fix</em></div>
+    <div class="sb-logo-s">Admin Control Panel v3.0</div>
+  </div>
+
+  <div class="sb-alert" onclick="showView('v-alerts')">
+    <span style="font-size:18px">🆘</span>
+    <div><div class="sb-alert-t">1 Active SOS</div><div class="sb-alert-s">Mechanic · Zoo Road</div></div>
+  </div>
+
+  <div class="sb-section">Operations</div>
+  <div class="sb-item active" id="si-dashboard" onclick="showView('v-dashboard')"><div class="sb-item-ico">📊</div>Dashboard</div>
+  <div class="sb-item" id="si-live" onclick="showView('v-live')"><div class="sb-item-ico">🗺️</div>Live map</div>
+  <div class="sb-item" id="si-jobs" onclick="showView('v-jobs')"><div class="sb-item-ico">🔧</div>Active jobs</div>
+  <div class="sb-item" id="si-alerts" onclick="showView('v-alerts')"><div class="sb-item-ico">🚨</div>Alerts & SOS</div>
+  <div class="sb-item" id="si-bodycam" onclick="showView('v-bodycam')"><div class="sb-item-ico">🎥</div>Bodycam feeds</div>
+
+  <div class="sb-section">People</div>
+  <div class="sb-item" id="si-mechanics" onclick="showView('v-mechanics')"><div class="sb-item-ico">👷</div>Mechanics</div>
+  <div class="sb-item" id="si-customers" onclick="showView('v-customers')"><div class="sb-item-ico">👥</div>Customers</div>
+
+  <div class="sb-section">Finance</div>
+  <div class="sb-item" id="si-finance" onclick="showView('v-finance')"><div class="sb-item-ico">💰</div>Revenue</div>
+  <div class="sb-item" id="si-payouts" onclick="showView('v-finance')"><div class="sb-item-ico">🏦</div>Payouts</div>
+
+  <div class="sb-section">Inventory</div>
+  <div class="sb-item" id="si-parts" onclick="showView('v-parts')"><div class="sb-item-ico">📦</div>Parts & pricing</div>
+  <div class="sb-item" id="si-outlets" onclick="showView('v-parts')"><div class="sb-item-ico">🏪</div>Outlets & partners</div>
+
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-av">LH</div>
+      <div><div class="sb-un">Lakhyajit H.</div><div class="sb-ur">Super admin</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN PANEL -->
+<div class="main">
+  <div class="topbar">
+    <div class="tb-title" id="tb-title">Dashboard</div>
+    <div class="tb-right">
+      <div class="tb-time" id="livetime">Loading...</div>
+      <button class="tb-sos">🆘 1 Active SOS</button>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div id="v-dashboard" class="view active">
+      <div class="g4">
+        <div class="kpi"><div class="kpi-ico">🔧</div><div class="kpi-val" style="color:var(--or)">24</div><div class="kpi-lbl">Active gigs right now</div><div class="kpi-delta" style="color:var(--gn)">↑ 6 vs yesterday</div></div>
+        <div class="kpi"><div class="kpi-ico">👷</div><div class="kpi-val" style="color:var(--bl)">38</div><div class="kpi-lbl">Mechanics online</div><div class="kpi-delta" style="color:var(--gn)">GPS tracked: 38/38</div></div>
+        <div class="kpi"><div class="kpi-ico">⏱️</div><div class="kpi-val" style="color:var(--pu)">4.2<span style="font-size:16px;font-weight:400"> min</span></div><div class="kpi-lbl">Avg response time</div><div class="kpi-delta" style="color:var(--gn)">↓ 1.1 min faster</div></div>
+        <div class="kpi"><div class="kpi-ico">💰</div><div class="kpi-val" style="color:var(--gn)">₹48k</div><div class="kpi-lbl">Today's GMV</div><div class="kpi-delta" style="color:var(--gn)">↑ 12% vs last week</div></div>
+      </div>
+      <div class="g4" style="margin-bottom:18px">
+        <div class="kpi"><div class="kpi-ico">🆘</div><div class="kpi-val" style="color:var(--rd)">1</div><div class="kpi-lbl">Active SOS alerts</div><div class="kpi-delta" style="color:var(--rd)">Mechanic · Zoo Road</div></div>
+        <div class="kpi"><div class="kpi-ico">🔄</div><div class="kpi-val" style="color:var(--yw)">3</div><div class="kpi-lbl">Return trips today</div><div class="kpi-delta" style="color:var(--tx2)">₹240 surcharge billed</div></div>
+        <div class="kpi"><div class="kpi-ico">📦</div><div class="kpi-val" style="color:var(--cy)">18</div><div class="kpi-lbl">Parts dispatched</div><div class="kpi-delta" style="color:var(--tx2)">OEM:12 ODM:4 Gen:2</div></div>
+        <div class="kpi"><div class="kpi-ico">🎥</div><div class="kpi-val" style="color:var(--pu)">24</div><div class="kpi-lbl">Bodycams active</div><div class="kpi-delta" style="color:var(--gn)">All recording ✓</div></div>
+      </div>
+      <div class="g21">
+        <div class="card">
+          <div class="sec-l">Live jobs feed</div>
+          <table class="table">
+            <thead><tr><th>Customer</th><th>Mechanic</th><th>Issue</th><th>Est. price</th><th>Status</th><th>Parts</th></tr></thead>
+            <tbody>
+              <tr><td>Rajesh K.</td><td><div style="display:flex;align-items:center;gap:7px"><div class="mav-sm" style="background:#1D4ED8;color:#fff">AK</div>Arjun K.</div></td><td>CV joint</td><td class="price-cell" style="color:var(--yw)">₹1,200–1,800</td><td><span class="bdg b-p">En route</span></td><td><span class="bdg b-b">OEM</span></td></tr>
+              <tr><td>Sita M.</td><td><div style="display:flex;align-items:center;gap:7px"><div class="mav-sm" style="background:#166534;color:#fff">RB</div>Raju B.</div></td><td>Engine stall</td><td class="price-cell" style="color:var(--yw)">₹900–1,400</td><td><span class="bdg b-b">Fixing</span></td><td><span class="bdg b-g">ODM</span></td></tr>
+              <tr><td>Pranab D.</td><td><div style="display:flex;align-items:center;gap:7px"><div class="mav-sm" style="background:#6D28D9;color:#fff">BN</div>Bikash N.</div></td><td>Battery dead</td><td class="price-cell" style="color:var(--or)">₹580</td><td><span class="bdg b-g">Done</span></td><td><span class="bdg b-y">Generic</span></td></tr>
+              <tr><td>Mita N.</td><td><div style="display:flex;align-items:center;gap:7px"><div class="mav-sm" style="background:#854D0E;color:#fff">SK</div>Suresh K.</div></td><td>Overheating</td><td class="price-cell" style="color:var(--yw)">₹700–1,100</td><td><span class="bdg b-o">Pending</span></td><td><span class="bdg b-b">OEM</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="sec-l">Platform health</div>
+          <div class="price-row"><div class="price-l">Mechanics with GPS ON</div><div class="price-v" style="color:var(--gn)">38 / 38</div></div>
+          <div class="price-row"><div class="price-l">Bodycams recording</div><div class="price-v" style="color:var(--gn)">24 / 24</div></div>
+          <div class="price-row"><div class="price-l">Verification pending</div><div class="price-v" style="color:var(--yw)">2 mechanics</div></div>
+          <div class="price-row"><div class="price-l">Avg final vs estimate</div><div class="price-v" style="color:var(--tx)">+8.4% over</div></div>
+          <div class="price-row"><div class="price-l">Return trip rate</div><div class="price-v" style="color:var(--yw)">10.7% of jobs</div></div>
+          <div class="price-row"><div class="price-l">Parts from company</div><div class="price-v" style="color:var(--gn)">78% of orders</div></div>
+          <div class="price-row" style="border-top:1px solid var(--bdr2);margin-top:4px"><div class="price-l">Rapido Parcel orders</div><div class="price-v">14 today</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE MAP -->
+    <div id="v-live" class="view">
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="admin-map">
+          <svg viewBox="0 0 900 280">
+            <rect width="900" height="280" fill="#101830"/>
+            <line x1="0" y1="56" x2="900" y2="56" stroke="#141E35" stroke-width="1"/><line x1="0" y1="112" x2="900" y2="112" stroke="#141E35" stroke-width="1"/><line x1="0" y1="168" x2="900" y2="168" stroke="#141E35" stroke-width="1"/><line x1="0" y1="224" x2="900" y2="224" stroke="#141E35" stroke-width="1"/>
+            <line x1="180" y1="0" x2="180" y2="280" stroke="#141E35" stroke-width="1"/><line x1="360" y1="0" x2="360" y2="280" stroke="#141E35" stroke-width="1"/><line x1="540" y1="0" x2="540" y2="280" stroke="#141E35" stroke-width="1"/><line x1="720" y1="0" x2="720" y2="280" stroke="#141E35" stroke-width="1"/>
+            <line x1="0" y1="140" x2="900" y2="140" stroke="#17264A" stroke-width="14"/><line x1="450" y1="0" x2="450" y2="280" stroke="#17264A" stroke-width="14"/>
+            <line x1="0" y1="84" x2="900" y2="84" stroke="#121E38" stroke-width="7"/><line x1="0" y1="196" x2="900" y2="196" stroke="#121E38" stroke-width="7"/>
+            <line x1="240" y1="0" x2="240" y2="280" stroke="#121E38" stroke-width="7"/><line x1="660" y1="0" x2="660" y2="280" stroke="#121E38" stroke-width="7"/>
+            <!-- Customers (red) -->
+            <circle cx="350" cy="155" r="9" fill="#EF4444"/><circle cx="350" cy="155" r="18" fill="none" stroke="rgba(239,68,68,.3)" stroke-width="1"><animate attributeName="r" from="9" to="24" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" from=".6" to="0" dur="2s" repeatCount="indefinite"/></circle>
+            <text x="350" y="175" fill="white" font-size="9" text-anchor="middle" font-family="DM Sans">Rajesh</text>
+            <circle cx="580" cy="120" r="9" fill="#EF4444"/><text x="580" y="140" fill="white" font-size="9" text-anchor="middle" font-family="DM Sans">Sita</text>
+            <circle cx="200" cy="180" r="9" fill="#EF4444"/><text x="200" y="198" fill="white" font-size="9" text-anchor="middle" font-family="DM Sans">Pranab</text>
+            <!-- Mechanics (blue dots with GPS) -->
+            <circle cx="280" cy="130" r="8" fill="#3B82F6"/><text x="280" y="118" fill="white" font-size="9" text-anchor="middle" font-family="DM Sans">AK</text>
+            <circle cx="500" cy="108" r="8" fill="#22C55E"/><text x="500" y="96" fill="white" font-size="9" text-anchor="middle" font-family="DM Sans">RB</text>
+            <circle cx="170" cy="164" r="8" fill="#A855F7"/><text x="170" y="152" fill="white" font-size="9" text-anchor="middle" font-family="DM Sans">BN</text>
+            <circle cx="680" cy="155" r="8" fill="#06B6D4"/><text x="680" y="143" fill="white" font-size="9" text-anchor="middle" font-family="DM Sans">SK</text>
+            <!-- Company outlet -->
+            <rect x="420" y="56" width="46" height="18" rx="4" fill="#F97316"/><text x="443" y="68" fill="white" font-size="9" text-anchor="middle" font-family="DM Sans">Outlet</text>
+            <!-- Routes -->
+            <line x1="280" y1="130" x2="350" y2="155" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="5,3"/>
+            <line x1="500" y1="108" x2="580" y2="120" stroke="#22C55E" stroke-width="1.5" stroke-dasharray="5,3"/>
+            <line x1="170" y1="164" x2="200" y2="180" stroke="#A855F7" stroke-width="1.5" stroke-dasharray="5,3"/>
+          </svg>
+          <div class="map-legend">
+            <div class="ml-item"><div class="ml-dot" style="background:#EF4444"></div>Customer SOS / active</div>
+            <div class="ml-item"><div class="ml-dot" style="background:#3B82F6"></div>Mechanic (GPS ON)</div>
+            <div class="ml-item"><div class="ml-dot" style="background:#F97316"></div>Company outlet</div>
+          </div>
+        </div>
+      </div>
+      <div class="g4">
+        <div class="kpi"><div class="kpi-ico">📍</div><div class="kpi-val" style="color:var(--gn)">38</div><div class="kpi-lbl">GPS active mechanics</div></div>
+        <div class="kpi"><div class="kpi-ico">🔧</div><div class="kpi-val" style="color:var(--or)">24</div><div class="kpi-lbl">Jobs in progress</div></div>
+        <div class="kpi"><div class="kpi-ico">🏪</div><div class="kpi-val" style="color:var(--cy)">5</div><div class="kpi-lbl">Active company outlets</div></div>
+        <div class="kpi"><div class="kpi-ico">🛵</div><div class="kpi-val" style="color:var(--pu)">3</div><div class="kpi-lbl">Rapido dispatches live</div></div>
+      </div>
+    </div>
+
+    <!-- ALERTS & SOS -->
+    <div id="v-alerts" class="view">
+      <div class="sec-l" style="margin-bottom:12px">🚨 Active SOS</div>
+      <div class="alert-item sos-alert" style="margin-bottom:14px">
+        <div class="al-ico">🆘</div>
+        <div class="al-info">
+          <div class="al-t">MECHANIC SOS — Arjun Kalita</div>
+          <div class="al-s">📍 Zoo Road flyover, Guwahati · GPS: 26.1324°N, 91.7458°E<br>Bodycam footage flagged. Possible altercation or emergency. Dispatching manager.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+          <div class="al-time">2 min ago</div>
+          <button style="background:var(--rd);color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--fh)">Respond</button>
+        </div>
+      </div>
+      <div class="sec-l" style="margin-bottom:12px">Recent alerts</div>
+      <div class="alert-item"><div class="al-ico">🔄</div><div class="al-info"><div class="al-t">Return trip added — Raju Boro</div><div class="al-s">Wrong part size (CV boot). Customer notified. Trip surcharge ₹100 added to bill.</div></div><div class="al-time">15 min ago</div></div>
+      <div class="alert-item"><div class="al-ico">📦</div><div class="al-info"><div class="al-t">Parts dispatched — Zone-3 outlet</div><div class="al-s">CV axle (OEM) to Arjun Kalita. Rapido Parcel tracking #RP7821. ETA 12 min.</div></div><div class="al-time">28 min ago</div></div>
+      <div class="alert-item"><div class="al-ico">🎥</div><div class="al-info"><div class="al-t">Bodycam offline — Suresh Kumar</div><div class="al-s">Bodycam disconnected during job. Auto-flagged. Manual check requested.</div></div><div class="al-time">42 min ago</div></div>
+      <div class="alert-item"><div class="al-ico">⚠️</div><div class="al-info"><div class="al-t">Price deviation — Bikash Nath</div><div class="al-s">Final bill ₹1,640 vs estimate ₹1,200–1,800. Within range. Auto-approved.</div></div><div class="al-time">1 hr ago</div></div>
+      <div class="alert-item"><div class="al-ico">🆘</div><div class="al-info"><div class="al-t">Customer SOS — Mita Nath</div><div class="al-s">SOS triggered at Bhangagarh. Nearest mechanic assigned in 2.1 min. Resolved.</div></div><div class="al-time">2 hr ago</div></div>
+    </div>
+
+    <!-- BODYCAM FEEDS -->
+    <div id="v-bodycam" class="view">
+      <div class="card" style="background:var(--rd2);border-color:rgba(239,68,68,.2);margin-bottom:14px;display:flex;align-items:center;gap:11px;padding:12px 16px"><div style="font-size:20px">⚠️</div><div><div style="font-size:13px;font-weight:700;color:var(--rd);font-family:var(--fh)">Bodycam flagged — Arjun Kalita</div><div style="font-size:12px;color:var(--tx2);margin-top:2px">SOS triggered. Bodycam footage auto-saved. Admin review required.</div></div><button style="background:var(--rd);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fh);white-space:nowrap;margin-left:auto">Review feed</button></div>
+      <div class="sec-l">Live bodycam feeds (24 active)</div>
+      <div class="cam-grid">
+        <div class="cam-feed cam-animate"><div class="cam-overlay"><div class="cam-rec">● REC</div></div><div class="cam-name">Arjun K. — Zoo Road 🆘</div></div>
+        <div class="cam-feed cam-animate" style="animation-delay:.5s"><div class="cam-overlay"><div class="cam-rec">● REC</div></div><div class="cam-name">Raju B. — Maligaon</div></div>
+        <div class="cam-feed cam-animate" style="animation-delay:1s"><div class="cam-overlay"><div class="cam-rec">● REC</div></div><div class="cam-name">Bikash N. — Chandmari</div></div>
+        <div class="cam-feed" style="background:var(--bg3)"><div class="cam-offline">📵 Cam offline — Suresh K.</div></div>
+        <div class="cam-feed cam-animate" style="animation-delay:1.5s"><div class="cam-overlay"><div class="cam-rec">● REC</div></div><div class="cam-name">Mohan D. — GS Road</div></div>
+        <div class="cam-feed cam-animate" style="animation-delay:2s"><div class="cam-overlay"><div class="cam-rec">● REC</div></div><div class="cam-name">Rajib S. — Paltan Bazar</div></div>
+      </div>
+      <div style="text-align:center;padding:12px 0;font-size:12px;color:var(--tx3)">+18 more active feeds · All footage stored 30 days · End-to-end encrypted</div>
+    </div>
+
+    <!-- MECHANICS -->
+    <div id="v-mechanics" class="view">
+      <div class="g3" style="margin-bottom:16px">
+        <div class="kpi"><div class="kpi-ico">👷</div><div class="kpi-val" style="color:var(--gn)">38</div><div class="kpi-lbl">Online now</div></div>
+        <div class="kpi"><div class="kpi-ico">✅</div><div class="kpi-val" style="color:var(--bl)">142</div><div class="kpi-lbl">Verified mechanics</div></div>
+        <div class="kpi"><div class="kpi-ico">⏳</div><div class="kpi-val" style="color:var(--yw)">2</div><div class="kpi-lbl">Pending verification</div></div>
+      </div>
+      <div class="card">
+        <div class="sec-l">Mechanic roster</div>
+        <table class="table">
+          <thead><tr><th>Mechanic</th><th>Verified</th><th>GPS</th><th>Bodycam</th><th>Rating</th><th>Today earned</th><th>Active job</th></tr></thead>
+          <tbody>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="mav-sm" style="background:#1D4ED8;color:#fff">AK</div>Arjun Kalita</div></td><td><span class="verified-ico">✅</span></td><td><span class="gps-on">📍 ON</span></td><td><span class="cam-on">🔴 REC</span></td><td>⭐ 4.9</td><td style="color:var(--gn);font-weight:700">₹1,160</td><td><span class="bdg b-r">SOS 🆘</span></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="mav-sm" style="background:#166534;color:#fff">RB</div>Raju Boro</div></td><td><span class="verified-ico">✅</span></td><td><span class="gps-on">📍 ON</span></td><td><span class="cam-on">🔴 REC</span></td><td>⭐ 4.7</td><td style="color:var(--gn);font-weight:700">₹890</td><td><span class="bdg b-b">Fixing</span></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="mav-sm" style="background:#6D28D9;color:#fff">BN</div>Bikash Nath</div></td><td><span class="verified-ico">✅</span></td><td><span class="gps-on">📍 ON</span></td><td><span class="cam-on">🔴 REC</span></td><td>⭐ 4.6</td><td style="color:var(--gn);font-weight:700">₹640</td><td><span class="bdg b-g">Done</span></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="mav-sm" style="background:#854D0E;color:#fff">SK</div>Suresh Kumar</div></td><td><span class="verified-ico">✅</span></td><td><span class="gps-on">📍 ON</span></td><td style="color:var(--rd);font-size:12px;font-weight:600">⚠️ Offline</td><td>⭐ 4.5</td><td style="color:var(--gn);font-weight:700">₹420</td><td><span class="bdg b-o">En route</span></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="mav-sm" style="background:#5B21B6;color:#fff">MD</div>Mohan Das</div></td><td><span style="color:var(--yw);font-size:14px">⏳</span></td><td><span style="color:var(--tx3);font-size:12px">OFF</span></td><td><span style="color:var(--tx3);font-size:12px">OFF</span></td><td>New</td><td style="color:var(--tx3)">—</td><td><span class="bdg b-y">Pending verify</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FINANCE -->
+    <div id="v-finance" class="view">
+      <div class="g4">
+        <div class="kpi"><div class="kpi-ico">💰</div><div class="kpi-val" style="color:var(--gn)">₹48k</div><div class="kpi-lbl">Today GMV</div></div>
+        <div class="kpi"><div class="kpi-ico">📈</div><div class="kpi-val" style="color:var(--bl)">₹3.84k</div><div class="kpi-lbl">Platform revenue (8%)</div></div>
+        <div class="kpi"><div class="kpi-ico">🏦</div><div class="kpi-val" style="color:var(--yw)">₹44.16k</div><div class="kpi-lbl">Mechanic payouts</div></div>
+        <div class="kpi"><div class="kpi-ico">🔄</div><div class="kpi-val" style="color:var(--or)">₹240</div><div class="kpi-lbl">Return trip revenue</div></div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="sec-l">Revenue breakdown</div>
+          <div class="fin-row"><div style="color:var(--tx2)">Platform fee (8% GMV)</div><div style="font-weight:600;color:var(--gn)">₹3,840</div></div>
+          <div class="fin-row"><div style="color:var(--tx2)">Parts margin (OEM/ODM)</div><div style="font-weight:600;color:var(--gn)">₹4,200</div></div>
+          <div class="fin-row"><div style="color:var(--tx2)">Return trip surcharges</div><div style="font-weight:600;color:var(--gn)">₹240</div></div>
+          <div class="fin-row"><div style="color:var(--tx2)">Rapido logistics fee</div><div style="font-weight:600;color:var(--rd)">-₹180</div></div>
+          <div class="fin-row" style="border-top:1px solid var(--bdr2);margin-top:5px"><div style="font-weight:700">Net today</div><div style="font-family:var(--fh);font-size:18px;font-weight:800;color:var(--or)">₹8,100</div></div>
+        </div>
+        <div class="card">
+          <div class="sec-l">Upcoming payouts (Monday)</div>
+          <div class="fin-row"><div style="color:var(--tx2)">Arjun Kalita</div><div style="font-weight:700;color:var(--gn)">₹18,400</div></div>
+          <div class="fin-row"><div style="color:var(--tx2)">Raju Boro</div><div style="font-weight:700;color:var(--gn)">₹14,200</div></div>
+          <div class="fin-row"><div style="color:var(--tx2)">Bikash Nath</div><div style="font-weight:700;color:var(--gn)">₹11,600</div></div>
+          <div class="fin-row"><div style="color:var(--tx2)">+ 139 mechanics</div><div style="font-weight:700;color:var(--tx2)">₹9.2L total</div></div>
+          <div class="fin-row" style="border-top:1px solid var(--bdr2);margin-top:5px"><div style="color:var(--tx2)">Total payout batch</div><div style="font-family:var(--fh);font-size:16px;font-weight:800;color:var(--or)">₹9,20,000</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARTS & PRICING -->
+    <div id="v-parts" class="view">
+      <div class="g3" style="margin-bottom:16px">
+        <div class="kpi"><div class="kpi-ico">📦</div><div class="kpi-val" style="color:var(--or)">18</div><div class="kpi-lbl">Parts dispatched today</div></div>
+        <div class="kpi"><div class="kpi-ico">🏪</div><div class="kpi-val" style="color:var(--gn)">5</div><div class="kpi-lbl">Company outlets active</div></div>
+        <div class="kpi"><div class="kpi-ico">🛵</div><div class="kpi-val" style="color:var(--bl)">14</div><div class="kpi-lbl">Rapido dispatches</div></div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="sec-l">Fixed parts pricing (company outlets)</div>
+        <div class="parts-grid">
+          <div class="pc"><div class="pc-t">CV Axle (OEM)</div><div class="pc-p">₹1,200</div><div class="pc-s">Maruti Swift 2019</div><span class="bdg b-b">OEM fixed price</span></div>
+          <div class="pc"><div class="pc-t">CV Axle (ODM)</div><div class="pc-p">₹780</div><div class="pc-s">Sona BLW / Minda</div><span class="bdg b-g">ODM fixed price</span></div>
+          <div class="pc"><div class="pc-t">CV Axle (Generic)</div><div class="pc-p">₹480</div><div class="pc-s">Local brand</div><span class="bdg b-y">Generic fixed price</span></div>
+          <div class="pc"><div class="pc-t">Battery (OEM)</div><div class="pc-p">₹4,800</div><div class="pc-s">Amaron / Exide</div><span class="bdg b-b">OEM fixed price</span></div>
+          <div class="pc"><div class="pc-t">Brake Pads (OEM)</div><div class="pc-p">₹980</div><div class="pc-s">Bosch / TVS</div><span class="bdg b-b">OEM fixed price</span></div>
+          <div class="pc"><div class="pc-t">Wheel Bearing (ODM)</div><div class="pc-p">₹420</div><div class="pc-s">FAG / SKF India</div><span class="bdg b-g">ODM fixed price</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="sec-l">Partner network</div>
+        <table class="table">
+          <thead><tr><th>Partner</th><th>Type</th><th>Coverage</th><th>Avg delivery</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>RoadFix Zone-3 Outlet</td><td>Company outlet</td><td>Paltan Bazar · Zoo Road</td><td>25 min</td><td><span class="bdg b-g">Open 24×7</span></td></tr>
+            <tr><td>Rapido Parcel</td><td>Logistics partner</td><td>All of Guwahati</td><td>18 min</td><td><span class="bdg b-g">Active</span></td></tr>
+            <tr><td>Sharma Auto Parts</td><td>24×7 partner shop</td><td>Maligaon, Chandmari</td><td>30 min</td><td><span class="bdg b-g">Open</span></td></tr>
+            <tr><td>NE Motor World</td><td>24×7 partner shop</td><td>GS Road, Bhangagarh</td><td>35 min</td><td><span class="bdg b-y">Open till midnight</span></td></tr>
+            <tr><td>Quick Spares Jorhat</td><td>24×7 partner shop</td><td>Jorhat city</td><td>40 min</td><td><span class="bdg b-g">Open 24×7</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CUSTOMERS (simple) -->
+    <div id="v-customers" class="view">
+      <div class="g4">
+        <div class="kpi"><div class="kpi-ico">👥</div><div class="kpi-val" style="color:var(--bl)">12,481</div><div class="kpi-lbl">Registered customers</div></div>
+        <div class="kpi"><div class="kpi-ico">🔥</div><div class="kpi-val" style="color:var(--or)">487</div><div class="kpi-lbl">Active this month</div></div>
+        <div class="kpi"><div class="kpi-ico">⭐</div><div class="kpi-val" style="color:var(--yw)">4.6</div><div class="kpi-lbl">Avg customer rating</div></div>
+        <div class="kpi"><div class="kpi-ico">🆘</div><div class="kpi-val" style="color:var(--rd)">3</div><div class="kpi-lbl">SOS last 30 days</div></div>
+      </div>
+      <div class="card">
+        <div class="sec-l">Recent activity</div>
+        <table class="table">
+          <thead><tr><th>Customer</th><th>City</th><th>Services</th><th>Total spent</th><th>Last service</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Rajesh Kumar</td><td>Guwahati</td><td>9</td><td style="color:var(--or);font-weight:700">₹6,040</td><td>Today</td><td><span class="bdg b-p">Active job</span></td></tr>
+            <tr><td>Sita Medhi</td><td>Guwahati</td><td>5</td><td style="color:var(--or);font-weight:700">₹3,200</td><td>Today</td><td><span class="bdg b-b">In service</span></td></tr>
+            <tr><td>Pranab Das</td><td>Guwahati</td><td>3</td><td style="color:var(--or);font-weight:700">₹1,800</td><td>Today</td><td><span class="bdg b-g">Completed</span></td></tr>
+            <tr><td>Mita Nath</td><td>Guwahati</td><td>7</td><td style="color:var(--or);font-weight:700">₹4,100</td><td>2 days ago</td><td><span class="bdg b-o">Pending</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ACTIVE JOBS (detailed) -->
+    <div id="v-jobs" class="view">
+      <div class="g4" style="margin-bottom:14px">
+        <div class="kpi"><div class="kpi-ico">⏳</div><div class="kpi-val" style="color:var(--or)">6</div><div class="kpi-lbl">Pending assignment</div></div>
+        <div class="kpi"><div class="kpi-ico">🚗</div><div class="kpi-val" style="color:var(--pu)">11</div><div class="kpi-lbl">En route</div></div>
+        <div class="kpi"><div class="kpi-ico">🔧</div><div class="kpi-val" style="color:var(--bl)">7</div><div class="kpi-lbl">Currently fixing</div></div>
+        <div class="kpi"><div class="kpi-ico">✅</div><div class="kpi-val" style="color:var(--gn)">42</div><div class="kpi-lbl">Done today</div></div>
+      </div>
+      <div class="card">
+        <div class="sec-l">All active jobs</div>
+        <table class="table">
+          <thead><tr><th>Job ID</th><th>Customer</th><th>Mechanic</th><th>Issue (AI)</th><th>Est. price</th><th>Parts</th><th>Trips</th><th>Status</th><th>Bodycam</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--tx3);font-family:monospace">#RF8821</td><td>Rajesh K.</td><td>Arjun K.</td><td>CV joint 87%</td><td class="price-cell" style="color:var(--yw)">₹1.2k–1.8k</td><td><span class="bdg b-b">OEM</span></td><td style="color:var(--am);font-weight:600">1 trip</td><td><span class="bdg b-r">SOS 🆘</span></td><td><div class="cam-live"><div class="cam-dot"></div>Live</div></td></tr>
+            <tr><td style="color:var(--tx3);font-family:monospace">#RF8820</td><td>Sita M.</td><td>Raju B.</td><td>Engine stall 74%</td><td class="price-cell" style="color:var(--yw)">₹900–1.4k</td><td><span class="bdg b-g">ODM</span></td><td>0</td><td><span class="bdg b-b">Fixing</span></td><td><div class="cam-live"><div class="cam-dot"></div>Live</div></td></tr>
+            <tr><td style="color:var(--tx3);font-family:monospace">#RF8819</td><td>Pranab D.</td><td>Bikash N.</td><td>Battery dead</td><td class="price-cell" style="color:var(--or)">₹580</td><td><span class="bdg b-y">Generic</span></td><td>0</td><td><span class="bdg b-g">Done ✓</span></td><td><div style="font-size:12px;color:var(--tx3)">Saved</div></td></tr>
+            <tr><td style="color:var(--tx3);font-family:monospace">#RF8818</td><td>Mita N.</td><td>Suresh K.</td><td>Overheating 81%</td><td class="price-cell" style="color:var(--yw)">₹700–1.1k</td><td><span class="bdg b-b">OEM</span></td><td>0</td><td><span class="bdg b-o">En route</span></td><td><span style="color:var(--rd);font-size:12px;font-weight:600">⚠️ Offline</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var views=['v-dashboard','v-live','v-jobs','v-alerts','v-bodycam','v-mechanics','v-customers','v-finance','v-parts'];
+var siMap={
+  'v-dashboard':'si-dashboard','v-live':'si-live','v-jobs':'si-jobs',
+  'v-alerts':'si-alerts','v-bodycam':'si-bodycam','v-mechanics':'si-mechanics',
+  'v-customers':'si-customers','v-finance':'si-finance','v-parts':'si-parts'
+};
+var titles={
+  'v-dashboard':'Dashboard','v-live':'Live map','v-jobs':'Active jobs',
+  'v-alerts':'Alerts & SOS','v-bodycam':'Bodycam feeds','v-mechanics':'Mechanics',
+  'v-customers':'Customers','v-finance':'Finance & revenue','v-parts':'Parts & pricing'
+};
+function showView(id){
+  views.forEach(function(v){var e=document.getElementById(v);if(e)e.classList.remove('active');});
+  var next=document.getElementById(id);if(next)next.classList.add('active');
+  Object.values(siMap).forEach(function(s){var e=document.getElementById(s);if(e)e.classList.remove('active');});
+  var si=siMap[id];if(si){var e=document.getElementById(si);if(e)e.classList.add('active');}
+  var tb=document.getElementById('tb-title');if(tb)tb.textContent=titles[id]||'Admin Panel';
+}
+function updateTime(){var n=new Date();var t=n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});var d=n.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});var e=document.getElementById('livetime');if(e)e.textContent=d+' · '+t;}
+setInterval(updateTime,1000);updateTime();
+</script>
+</body>
+</html>
